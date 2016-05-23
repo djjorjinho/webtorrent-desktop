@@ -32,7 +32,8 @@ function getInitialState () {
     playing: getDefaultPlayState(), /* the media (audio or video) that we're currently playing */
     devices: { /* playback devices like Chromecast and AppleTV */
       airplay: null, /* airplay client. finds and manages AppleTVs */
-      chromecast: null /* chromecast client. finds and manages Chromecasts */
+      chromecast: null, /* chromecast client. finds and manages Chromecasts */
+      dlna: null /* DLNA client for "smart TVs", etc */
     },
     dock: {
       badge: 0,

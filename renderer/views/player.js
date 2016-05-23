@@ -270,6 +270,34 @@ function renderCastScreen (state) {
   `
 }
 
+function renderCastOptions (state) {
+  if (!state.devices.castMenu) return
+
+  var {location, devices} = state.devices.castMenu
+  var player = state.devices[location]
+
+  var items = devices.map(function (device, ix) {
+    var isSelected = player.device === device
+    var name = device.name
+    // Workaround: the Airplay module produces ugly names
+    if (name.endsWith('._airplay._tcp.local')) {
+      name = name.substring(0, name.length - '._airplay._tcp.local'.length)
+    }
+    return hx`
+      <li onclick=${dispatcher('selectCastDevice', ix)}>
+        <i.icon>${isSelected ? 'radio_button_checked' : 'radio_button_unchecked'}</i>
+        ${name}
+      </li>
+    `
+  })
+
+  return hx`
+    <ul.options-list.cast-list>
+      ${items}
+    </ul>
+  `
+}
+
 function renderSubtitlesOptions (state) {
   var subtitles = state.playing.subtitles
   if (!subtitles.tracks.length || !subtitles.showMenu) return
@@ -286,7 +314,7 @@ function renderSubtitlesOptions (state) {
 
   var noneSelected = state.playing.subtitles.selectedIndex === -1
   return hx`
-    <ul.subtitles-list>
+    <ul.options-list.subtitles-list>
       ${items}
       <li onclick=${dispatcher('selectSubtitle', -1)}>
         <i.icon>${noneSelected ? 'radio_button_checked' : 'radio_button_unchecked'}</i>
@@ -376,9 +404,9 @@ function renderPlayerControls (state) {
     chromecastClass = ''
     airplayClass = ''
     dlnaClass = ''
-    chromecastHandler = dispatcher('openDevice', 'chromecast')
-    airplayHandler = dispatcher('openDevice', 'airplay')
-    dlnaHandler = dispatcher('openDevice', 'dlna')
+    chromecastHandler = dispatcher('startCasting', 'chromecast')
+    airplayHandler = dispatcher('startCasting', 'airplay')
+    dlnaHandler = dispatcher('startCasting', 'dlna')
   }
   if (state.devices.chromecast || isOnChromecast) {
     var castIcon = isOnChromecast ? 'cast_connected' : 'cast'
@@ -455,6 +483,7 @@ function renderPlayerControls (state) {
   return hx`
     <div class='controls'>
       ${elements}
+      ${renderCastOptions(state)}
       ${renderSubtitlesOptions(state)}
     </div>
   `

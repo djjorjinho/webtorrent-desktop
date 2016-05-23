@@ -892,7 +892,7 @@ video::-webkit-media-text-track-container {
  * Subtitles list
  */
 
-.subtitles-list {
+.options-list {
   position: fixed;
   background: rgba(40, 40, 40, 0.8);
   min-width: 100px;
@@ -906,7 +906,7 @@ video::-webkit-media-text-track-container {
   color: rgba(255, 255, 255, 0.8);
 }
 
-.subtitles-list i {
+.options-list i {
   font-size: 11px; /* make the cast icons less huge */
   margin-right: 4px !important;
 }
