@@ -33,28 +33,32 @@ function init (appState, callback) {
   state = appState
   update = callback
 
+  state.devices.chromecast = chromecastPlayer()
+  state.devices.dlna = dlnaPlayer()
+  state.devices.airplay = airplayPlayer(browser)
+
   // Listen for devices: Chromecast, DLNA and Airplay
-  chromecasts.on('update', function () {
+  chromecasts.on('update', function (device) {
     // TODO: how do we tell if there are *no longer* any Chromecasts available?
     // From looking at the code, chromecasts.players only grows, never shrinks
-    if (!state.devices.chromecast) state.devices.chromecast = chromecastPlayer()
+    state.devices.chromecast.addDevice(device)
   })
 
-  dlnacasts.on('update', function () {
-    if (!state.devices.dlna) state.devices.dlna = dlnaPlayer()
+  dlnacasts.on('update', function (device) {
+    state.devices.dlna.addDevice(device)
   })
 
   var browser = airplay.createBrowser()
-  browser.on('deviceOn', function () {
-    if (!state.devices.airplay) state.devices.airplay = airplayPlayer(browser)
+  browser.on('deviceOn', function (device) {
+    state.devices.airplay.addDevice(device)
   }).start()
 }
 
 // chromecast player implementation
 function chromecastPlayer () {
-  addEvents()
   var ret = {
     device: null,
+    addDevice,
     getDevices,
     open,
     play,
@@ -70,8 +74,9 @@ function chromecastPlayer () {
     return chromecasts.players
   }
 
-  function addEvents () {
-    ret.device.on('error', function (err) {
+  function addDevice (device) {
+    device.on('error', function (err) {
+      if (device !== ret.device) return
       state.playing.location = 'local'
       state.errors.push({
         time: new Date().getTime(),
@@ -79,7 +84,8 @@ function chromecastPlayer () {
       })
       update()
     })
-    ret.device.on('disconnect', function () {
+    device.on('disconnect', function () {
+      if (device !== ret.device) return
       state.playing.location = 'local'
       update()
     })
@@ -139,6 +145,7 @@ function chromecastPlayer () {
 function airplayPlayer (browser) {
   var ret = {
     device: null,
+    addDevice,
     getDevices,
     open,
     play,
@@ -150,8 +157,10 @@ function airplayPlayer (browser) {
   }
   return ret
 
+  function addDevice () {}
+
   function getDevices () {
-    return browser.getDevices()
+    return browser ? browser.getDevices() : []
   }
 
   function open () {
@@ -206,9 +215,9 @@ function airplayPlayer (browser) {
 
 // DLNA player implementation
 function dlnaPlayer (player) {
-  addEvents()
   var ret = {
     device: null,
+    addDevice,
     getDevices,
     open,
     play,
@@ -224,8 +233,9 @@ function dlnaPlayer (player) {
     return dlnacasts.players
   }
 
-  function addEvents () {
-    ret.device.on('error', function (err) {
+  function addDevice (device) {
+    device.on('error', function (err) {
+      if (device !== ret.device) return
       state.playing.location = 'local'
       state.errors.push({
         time: new Date().getTime(),
@@ -233,7 +243,8 @@ function dlnaPlayer (player) {
       })
       update()
     })
-    ret.device.on('disconnect', function () {
+    device.on('disconnect', function () {
+      if (device !== ret.device) return
       state.playing.location = 'local'
       update()
     })
