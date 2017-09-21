@@ -26,6 +26,7 @@ class Header extends React.Component {
           </i>
         </div>
         <div className='nav right float-right'>
+          {this.getRssButton()}
           {this.getAddButton()}
         </div>
       </div>
@@ -50,6 +51,17 @@ class Header extends React.Component {
       </i>
     )
   }
+
+   getRssButton() {
+      return (
+        <i
+          className='icon rss'
+          title='RSS Feeds'
+          onClick={dispatcher('showRssMenu')}>
+          rss_feed
+        </i>
+      )
+    }
 }
 
 module.exports = Header

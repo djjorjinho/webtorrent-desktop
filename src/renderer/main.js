@@ -36,6 +36,8 @@ const telemetry = require('./lib/telemetry')
 const sound = require('./lib/sound')
 const TorrentPlayer = require('./lib/torrent-player')
 
+const RssManager = require('./lib/rss-manager')
+
 // Perf optimization: Needed immediately, so do not lazy load it below
 const TorrentListController = require('./controllers/torrent-list-controller')
 
@@ -161,6 +163,9 @@ function onState (err, _state) {
   // ...focus and blur. Needed to show correct dock icon text ('badge') in OSX
   window.addEventListener('focus', onFocus)
   window.addEventListener('blur', onBlur)
+
+  // rss manager
+  RssManager.startRssManager(state)
 
   if (electron.remote.getCurrentWindow().isVisible()) {
     sound.play('STARTUP')
@@ -316,6 +321,7 @@ const dispatchHandlers = {
   'resetTitle': () => { state.window.title = config.APP_WINDOW_TITLE },
 
   // Everything else
+  'showRssMenu': () => RssManager.showRssMenu(),
   'onOpen': onOpen,
   'error': onError,
   'uncaughtError': (proc, err) => telemetry.logUncaughtError(proc, err),
